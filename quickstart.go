@@ -119,16 +119,17 @@ func main() {
 		}
 	}
 
-	// resp, _ := srv.Files.Get("1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA").Do()
-	// fmt.Println(resp)
-	// 	Type: "anyone",
-	// 	Role: "reader",
-	// }
-	// resp1, err := srv.Permissions.Create("1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA", permission).Do()
-	// if err != nil {
-	// 	log.Fatalf("%v", err)
-	// }
-	// fmt.Println(resp1)
+	resp, _ := srv.Files.Get("1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA").Do()
+	fmt.Println(resp)
+	permission := &drive.Permission{
+		Type: "anyone",
+		Role: "reader",
+	}
+	resp1, err := srv.Permissions.Create("1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA", permission).Do()
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	fmt.Println(resp1)
 
 	srv1, err := sheets.New(client)
 	if err != nil {
@@ -137,34 +138,59 @@ func main() {
 
 	// Prints the names and majors of students in a sample spreadsheet:
 	// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-	spreadsheetId := "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-	readRange := "Class Data!A2:E"
+	spreadsheetId := "1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA"
+	readRange := "Sheet1!A:Z"
 	resp, err := srv1.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve data from sheet: %v", err)
 	}
 	//fmt.Println(resp)
 	resp1, _ := srv1.Spreadsheets.Get(spreadsheetId).Do()
-	fmt.Println(resp1)
+	fmt.Println(resp1.SpreadsheetUrl)
 	if len(resp.Values) == 0 {
 		fmt.Println("No data found.")
 	} else {
 		fmt.Println("Name, Major:")
 		for _, row := range resp.Values {
 			// Print columns A and E, which correspond to indices 0 and 4.
-			fmt.Printf("%s, %s\n", row[0], row[4])
+			fmt.Printf("%s, %s\n", row[0], row[1])
 		}
 	}
-	// ss := &sheets.Spreadsheet{
-	// 	Properties: &sheets.SpreadsheetProperties{
-	// 		Title: "123",
-	// 	},
-	// }
-	// resp2, err3 := srv.Spreadsheets.Create(ss).Do()
-	// if err3 != nil {
-	// 	log.Fatalf("Unable to retrieve data from sheet: %v", err3)
-	// }
-	// fmt.Println(resp2)
+	valueRange := &sheets.ValueRange{
+		Values: [][]interface{}{
+			{
+				"Name",
+				"Email",
+				"Resume",
+				"Experience",
+				"Reason",
+				"FilledAt",
+			},
+			{
+				"Rishabh Ranjan",
+				"rrrishabh7@gmail.com",
+				"google.com",
+				1,
+				"test",
+				"2020-07-24",
+			},
+		},
+	}
+	resp2, err := srv1.Spreadsheets.Values.Append(spreadsheetId, readRange, valueRange).ValueInputOption("USER_ENTERED").Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve data from sheet: %v", err)
+	}
+	fmt.Println(resp2)
+	ss := &sheets.Spreadsheet{
+		Properties: &sheets.SpreadsheetProperties{
+			Title: "123",
+		},
+	}
+	resp3, err3 := srv1.Spreadsheets.Create(ss).Do()
+	if err3 != nil {
+		log.Fatalf("Unable to retrieve data from sheet: %v", err3)
+	}
+	fmt.Println(resp3)
 }
 
 // [END sheets_quickstart]
