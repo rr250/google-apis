@@ -29,6 +29,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/drive/v3"
+	"google.golang.org/api/sheets/v4"
 )
 
 // Retrieve a token, saves the token, then returns the generated client.
@@ -98,25 +99,26 @@ func main() {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
 	client := getClient(config)
+	log.Printf("%v", client)
 
-	// srv, err := drive.New(client)
-	// if err != nil {
-	// 	log.Fatalf("Unable to retrieve Drive client: %v", err)
-	// }
+	srv, err := drive.New(client)
+	if err != nil {
+		log.Fatalf("Unable to retrieve Drive client: %v", err)
+	}
 
-	// r, err := srv.Files.List().PageSize(1).
-	// 	Fields("nextPageToken, files(id, name)").Do()
-	// if err != nil {
-	// 	log.Fatalf("Unable to retrieve files: %v", err)
-	// }
-	// fmt.Println("Files:")
-	// if len(r.Files) == 0 {
-	// 	fmt.Println("No files found.")
-	// } else {
-	// 	for _, i := range r.Files {
-	// 		fmt.Printf("%s (%s)\n", i.Name, i.Id)
-	// 	}
-	// }
+	r, err := srv.Files.List().PageSize(1).
+		Fields("nextPageToken, files(id, name)").Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve files: %v", err)
+	}
+	fmt.Println("Files:")
+	if len(r.Files) == 0 {
+		fmt.Println("No files found.")
+	} else {
+		for _, i := range r.Files {
+			fmt.Printf("%s (%s)\n", i.Name, i.Id)
+		}
+	}
 
 	// resp, _ := srv.Files.Get("1lWCjxxur2oUZqQb_Q6X00ufw4cq3pzA7gjHwtv2QIXA").Do()
 	// fmt.Println(resp)
@@ -130,10 +132,10 @@ func main() {
 	// }
 	// fmt.Println(resp1)
 
-	// srv1, err := sheets.New(client)
-	// if err != nil {
-	// 	log.Fatalf("Unable to retrieve Sheets client: %v", err)
-	// }
+	srv1, err := sheets.New(client)
+	if err != nil {
+		log.Fatalf("Unable to retrieve Sheets client: %v", err)
+	}
 
 	// // Prints the names and majors of students in a sample spreadsheet:
 	// // https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -180,16 +182,16 @@ func main() {
 	// 	log.Fatalf("Unable to retrieve data from sheet: %v", err)
 	// }
 	// fmt.Println(resp2)
-	// ss := &sheets.Spreadsheet{
-	// 	Properties: &sheets.SpreadsheetProperties{
-	// 		Title: "123",
-	// 	},
-	// }
-	// resp3, err3 := srv1.Spreadsheets.Create(ss).Do()
-	// if err3 != nil {
-	// 	log.Fatalf("Unable to retrieve data from sheet: %v", err3)
-	// }
-	// fmt.Println(resp3)
+	ss := &sheets.Spreadsheet{
+		Properties: &sheets.SpreadsheetProperties{
+			Title: "123",
+		},
+	}
+	resp3, err3 := srv1.Spreadsheets.Create(ss).Do()
+	if err3 != nil {
+		log.Fatalf("Unable to retrieve data from sheet: %v", err3)
+	}
+	fmt.Println(resp3)
 }
 
 // [END sheets_quickstart]
